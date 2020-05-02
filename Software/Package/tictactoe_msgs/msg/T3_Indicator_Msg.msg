@@ -1,0 +1,3 @@
+uint8 Player1_Led_Indicator_Status
+uint8 Player2_Led_Indicator_Status
+uint8 Buzzer_Status

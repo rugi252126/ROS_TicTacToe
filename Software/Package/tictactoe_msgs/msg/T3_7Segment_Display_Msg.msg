@@ -1,0 +1,3 @@
+uint8 Player1_Score_Board
+uint8 Player2_Score_Board
+uint8 Timer_Board

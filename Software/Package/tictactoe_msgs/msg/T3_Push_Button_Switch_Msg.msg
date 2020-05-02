@@ -1,0 +1,3 @@
+uint8 Player1_SelectMove_Button_Status
+uint8 Player2_SelectMove_Button_Status
+uint8 Enter_Button_Status

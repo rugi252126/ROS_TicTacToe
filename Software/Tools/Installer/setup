@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+set -e
+
+source /opt/ros/$(dir /opt/ros)/setup.bash
+
+sudo cp teensy_uDev_rules/49-teensy.rules /etc/udev/rules.d/
+
+ROSDISTRO="$(rosversion -d)"
+ARCH="$(uname -m)"
+echo $ARCH
+echo "
+ROS Tic-Tac-Toe                                                                     
+"
+
+echo "========[Starting the Instalation]========"
+echo "========[Please wait. The process might take some time]========."
+
+sudo apt-get update
+sudo apt-get install -y \
+avahi-daemon \
+openssh-server \
+python-setuptools \
+python-dev \
+build-essential \
+git
+echo "*********************************************"
+echo "python-gudev is not supported in Ubuntu 18.04"
+echo "*********************************************"
+
+echo
+echo "========[Installing Platformio]========"
+echo
+sudo apt install -y python-pip
+sudo python2.7 -m pip install -U platformio
+sudo rm -rf $HOME/.platformio/
+
+echo
+echo "========[Creating a ROS workspace]========"
+echo
+source /opt/ros/$ROSDISTRO/setup.bash
+
+cd $HOME
+sudo rm -rf rps_tictactoe_ws
+mkdir -p ros_tictactoe_ws/src
+cd $HOME/ros_tictactoe_ws/src
+catkin_init_workspace
+echo
+echo "Copying ROS packages"
+echo
+#cp -r $HOME/ROS_TicTacToe/Software/Package/tictactoe_udev_rules .
+cp -r $HOME/ROS_TicTacToe/Software/Package/tictactoe_msgs .
+
+echo
+echo "Build the ROS workspace"
+echo
+cd $HOME/ros_tictactoe_ws/
+catkin_make
+source devel/setup.bash
+
+echo 
+echo "========[Installing ROS packages]========"
+echo
+sudo apt-get install -y \
+ros-$ROSDISTRO-roslint \
+ros-$ROSDISTRO-rosserial \
+ros-$ROSDISTRO-rosserial-arduino 
+
+echo
+echo "Setting-up the BCU(Base Control Unit)"
+cd $HOME/ros_tictactoe_ws/src
+echo
+echo "Copying BCU files and libraries"
+echo
+cp -r $HOME/ROS_TicTacToe/Software/mc_sw/tictactoe .
+
+cd $HOME/ros_tictactoe_ws/src/tictactoe
+cd $HOME/ros_tictactoe_ws/src/tictactoe/arduinomega
+export PLATFORMIO_CI_SRC=$PWD/src/main.cpp
+platformio ci --project-conf=./platformio.ini --lib="./lib/ros_lib" --lib="./lib/cfg"
+
+echo "source $HOME/ros_tictactoe_ws/devel/setup.bash" >> $HOME/.bashrc
+source $HOME/.bashrc
+
+echo
+echo "Build the entire ROS workspace including the BCU"
+echo
+cd $HOME/ros_tictactoe_ws
+catkin_make
+
+echo
+echo "========[Installation is done.]========"
+echo
