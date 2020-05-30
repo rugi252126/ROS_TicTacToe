@@ -1,4 +1,4 @@
-# ROS Tic-Tac-Toe
+# ROS TicTacToe
 
 ## 1. Introduction
 ROS_TicTacToe is basically the game TicTacToe that developed over ROS environment.
@@ -43,7 +43,7 @@ For this project, the use of desktop/laptop to run the GUI tools is optional. Bu
 
 
 ## 2.2 Network Setup
-The network configuration has to be done if it is not yet done before or everytime the ip-address of the machine has changed.
+The network configuration has to be done if it is not yet done before or everytime the ip-address of the machine is changed.
 
 ### 2.2.1 ARM based development board or computer/laptop alone
 To configure your ROS network, do the following.
@@ -69,30 +69,31 @@ To configure your ROS network, do the following.
 - Take note of the ip-addresses
 
 Computer/Laptop:
-Type the following in the terminal.
-export ROS_MASTER_URI=http://<ARM board ip-address>:11311
-export ROS_HOSTNAME=<computer/laptop ip-address>
+- Type the following in the terminal.
+- export ROS_MASTER_URI=http://<ARM board ip-address>:11311
+- export ROS_HOSTNAME=<computer/laptop ip-address>
 
 ARM board:
-Type the following in the terminal.
-export ROS_MASTER_URI=http://<ARM board ip-address>:11311
-export ROS_HOSTNAME=<ARM board ip-address>
+- Type the following in the terminal.
+- export ROS_MASTER_URI=http://<ARM board ip-address>:11311
+- export ROS_HOSTNAME=<ARM board ip-address>
 
 
 You can automate this process to avoid doing the same thing everytime you open new terminal.
+
 Computer/Laptop:
-Type the following in the terminal.
-echo "export ROS_MASTER_URI=http://<ARM board ip-address>:11311" >> ~/.bashrc
-echo "export ROS_HOSTNAME=<computer/laptop ip-address>" >> ~/.bashrc
+- Type the following in the terminal.
+- echo "export ROS_MASTER_URI=http://<ARM board ip-address>:11311" >> ~/.bashrc
+- echo "export ROS_HOSTNAME=<computer/laptop ip-address>" >> ~/.bashrc
 
 ARM board:
-Type the following in the terminal.
-echo "export ROS_MASTER_URI=http://<ARM board ip-address>:11311" >> ~/.bashrc
-echo "export ROS_HOSTNAME=<ARM board ip-address>" >> ~/.bashrc
+- Type the following in the terminal.
+- echo "export ROS_MASTER_URI=http://<ARM board ip-address>:11311" >> ~/.bashrc
+- echo "export ROS_HOSTNAME=<ARM board ip-address>" >> ~/.bashrc
 
 
 ## 2.3 Project Installation
-ARM board:
+ARM board computer:
 To install the needed tools and packages, create and configure project workspace, the installation package has to be started.
 Please follow below procedure.
 
@@ -110,8 +111,8 @@ Please follow below procedure.
 
 
 ## 2.4 uDev Rules
-Since the arduino microcontroller is connected via USB of ARM board computer, we have to defined and enabled the USB used by arduino microcontroller.
-It can be done in different ways. Below I show you two methods.
+Since the arduino microcontroller is connected via USB of the ARM board computer, we have to defined and enabled the USB port used by arduino microcontroller.
+It can be done in different ways. Below I'll show you two methods.
 1. First method, it needs to be done manually everytime the ARM board computer is power-up.
 - Open the terminal
 - Plug-in your microcontroller USB to ARM board computer USB port
@@ -121,28 +122,28 @@ It can be done in different ways. Below I show you two methods.
 2. Second method is to do it permanently by applying new rules. Permanently means you don't have to do it everytime the ARM board computer is power-up. 
 You just have to do it once. To do it, please do the following
 - Open the terminal
-- Run the udev rules script
-- Plug-in your microcontroller USB to ARM board computer USB port
-- Once you see the message "New rules is successfully created", press "CTRL+C" to exit
 - Then type: cd ~/ros_tictactoe_ws/src/udev_rules
-- Copy the new rules, type: sudo cp 25-tictactoe.rules /etc/udev/rules.d"
+- Run the ROS package to run the script, type: rosrun udev_rules make_udev.py
+- Plug-in your microcontroller USB to ARM board computer USB port
+- Once you see the message "New udev rules is successfully created.", press "CTRL+C" and follow the instruction given in the terminal.
+- Copy the new rules, type: sudo cp 25-tictactoe.rules /etc/udev/rules.d
 - Reboot your computer
 
 
 For Ubuntu 16.04, method number 2 can be done without any problem. However, for Ubuntu 18.04 the script won't work because the gudev in python is not supported. 
 For Ubuntu 18.04, if you are planning to create new udev rules manually, you can use below links as reference.
-Detailed explanation about the udev rules and how to create one
+- Detailed explanation about the udev rules and how to create one
 http://www.reactivated.net/writing_udev_rules.html
-To check the Vendor ID or Product ID
+- To check the Vendor ID or Product ID
 http://www.the-sz.com/products/usbid/index.php?v=&p=&n=
 
 
 ## 3. Hardware Setup
 
 ## 3.1 Linux Computer/Laptop
-I tested the game using different machines.
+I tested the system using different machines.
 Using Vorke mini computer where Ubuntu 16.04 is installed. And also using Raspberry Pi 3B+ where Ubuntu 18.04 is installed.
-From the design point of view, the game should work without any problem if you use other development boards.
+From the design point of view, the game should work fine if you use other development boards.
 
 ## 3.2 Microcontroller
 The arduino mega2560 microcontroller is used for the following reasons.
@@ -154,32 +155,33 @@ The arduino mega2560 microcontroller is used for the following reasons.
 - Powerbank
 - LiPo 2S battery or equivalent
 
-For more information regarding the voltage and current rating, please see the Requirements.
+For more information regarding the voltage and current rating, please check the Requirements.
 
 ## 3.4 Schematic and Part list
-Please see the BOM for the complete list of parts and see schematic diagram for the wiring connnection.
+Please see the BOM for the complete list of parts and schematic diagram for the wiring connnection.
 
 
 ## 4. Software
-The software implementation is distributed between ARM development board and microcontroller board.
-For more information, please see the Software Architecture document.
+The software implementation is distributed between ARM board computer and microcontroller board.
+For more information, please check the Software Architecture document.
 
 ## 4.1 Platformio IO
-It is used to build and load the software into arduino microcontroller
+It is used to build and load the software into arduino microcontroller.
 
 
 ## 5. Testing
-If everything is fine, it is time to load the software to Base Control Unit and start the testing.
+If everything is fine, it is time to load the software to the Base Control Unit and start the testing.
 
-To load the Base Control Unit software, please do the following.
+To load the software into microcontroller, please do the following.
 - Open the terminal
 - cd ~/ros_tictactoe_ws/src/tictactoe/arduinomega
 - platformio run --target upload
 - You should able to see message that flashing is successfully done.
 
-
-## 6. Requirements
-The System Requirements, Communication matrix and schedule table are available under the Requirement Folder.
+After firmware was successfully loaded, then start the communication by doing the following.
+- Open the terminal
+- cd ~/ros_tictactoe_ws/
+- roslaunch tictactoe tictactoe.launch
 
 
 
