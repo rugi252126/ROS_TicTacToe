@@ -48,7 +48,7 @@ catkin_init_workspace
 echo
 echo "Copying ROS packages"
 echo
-#cp -r $HOME/ROS_TicTacToe/Software/Package/tictactoe_udev_rules .
+cp -r $HOME/ROS_TicTacToe/Software/Package/udev_rules .
 cp -r $HOME/ROS_TicTacToe/Software/Package/tictactoe_msgs .
 
 echo
