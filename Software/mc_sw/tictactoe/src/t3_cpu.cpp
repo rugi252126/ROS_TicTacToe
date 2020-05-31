@@ -1,10 +1,10 @@
 /**
     t3_cpu.cpp
-    Purpose: T3_CPU handles the central processing of TicTacToe game.
+    Purpose: T3_CPU handles the main game algorithm and central processing of TicTacToe game.
     Task scheduling, publishing and subscribing of ROS messages.
 
     @author Alfonso, Rudy Manalo
-    @version 1.1 4/4/2020
+    @version 1.2 31/5/2020
 */
 
 #include "t3_cpu.h"
@@ -27,11 +27,10 @@ const int ONE_SEC_TIME_MS          = (1000/TASK_TIME_MS);
 const int STARTUP_TIME_MS          = (1500/TASK_TIME_MS);
 const int NEW_GAME_TIME_MS         = (2000/TASK_TIME_MS);
 
-class T3Cpu {
+class Game {
     public:
-        T3Cpu();
-        void task();
-        void get_led_board(uint8_t board[]);
+        Game();
+        void game_task();
 
     private:
         void setting_off();
@@ -83,9 +82,6 @@ class T3Cpu {
         GameModes game_modes_e_;
         GameModes game_modes_buf_e_;
 
-        // board game
-        uint8_t led_board_[ROW_COL_SIZE];
-
         struct {
             // TRUE pressed; FALSE otherwise
             bool enter_switch_psd_state_b_;
@@ -108,8 +104,6 @@ class T3Cpu {
             int move_time_1sec_ctr_;
             // modes counter to run all available modes(game mode and move time)
             int modes_ctr_;
-            // used to track the board game slots
-            int slot_ctr_;
             // Player1 winner counter
             int p1_win_ctr_;
             // Player2 winner counter
@@ -126,7 +120,7 @@ class T3Cpu {
 };
 
 // Object instances
-T3Cpu t3_cpu         = T3Cpu();
+Game game            = Game();
 Player p1            = Player();
 Player p2            = Player();
 MutualAction p1_2    = MutualAction();
@@ -150,9 +144,9 @@ T3CpuNode::T3CpuNode() {
 }
 
 /**
-    Class T3Cpu constructor
+    Class Game constructor
 */
-T3Cpu::T3Cpu() {
+Game::Game() {
     cpu_state_e_                           = CpuState::STARTUP_E;
     game_setting_state_e_                  = GameSettingState::OFF_E;
     game_modes_e_                          = GameModes::SETTING_UP_E;
@@ -169,24 +163,10 @@ T3Cpu::T3Cpu() {
     counter_s.game_setting_transition_ctr_ = 0;
     counter_s.restart_ctr_                 = 0;
     counter_s.modes_ctr_                   = 0;
-    counter_s.slot_ctr_                    = ROW_COL_SIZE;
     counter_s.move_time_ctr_               = 0;
     counter_s.move_time_1sec_ctr_          = 0;
 }
 
-/**
-    It gives back the status of the led board.
-    The information that can be available in each led board slot is defined inside com.h
-
-    @param  led board game
-    @return none
-*/
-void T3Cpu::get_led_board(uint8_t board[]) {
-
-    for(int idx = 0; idx < ROW_COL_SIZE; idx++) {
-        board[idx] = led_board_[idx];
-    }
-}
 
 /**
     For every new game, function checks who will do the first move(Player1/Player2).
@@ -200,7 +180,7 @@ void T3Cpu::get_led_board(uint8_t board[]) {
     @param  none
     @return none
 */
-void T3Cpu::first_move() {
+void Game::first_move() {
 
     int random;
 
@@ -237,7 +217,7 @@ void T3Cpu::first_move() {
     @param  none
     @return none
 */
-void T3Cpu::move_time_monitoring() {
+void Game::move_time_monitoring() {
  
     int timer_ctr = 0;
 
@@ -299,7 +279,7 @@ void T3Cpu::move_time_monitoring() {
     @param  none
     @return none
 */
-void T3Cpu::check_matches() {
+void Game::check_matches() {
 
     const int best_wins[] = {
         0, // Dummy NDEF0
@@ -355,7 +335,7 @@ void T3Cpu::check_matches() {
     @param  none
     @return none
 */
-void T3Cpu::setting_off() {
+void Game::setting_off() {
 
     if(SwitchState::PSD_E == p1_2.get_switch_state()) {
         // Reset psd npsd state to be ready for next button pressed/released action.
@@ -433,7 +413,7 @@ void T3Cpu::setting_off() {
     @param  none
     @return none
 */
-void T3Cpu::setting_on() {
+void Game::setting_on() {
 
     // Number of game mode and move time elements
     const uint8_t ELEM_SIZE = 5;
@@ -587,7 +567,7 @@ void T3Cpu::setting_on() {
     @param  none
     @return none
 */
-void T3Cpu::start_up() {
+void Game::start_up() {
 
     // Startup time counter
     counter_s.cpu_state_transition_ctr_++;
@@ -618,7 +598,7 @@ void T3Cpu::start_up() {
     @param  none
     @return none
 */
-void T3Cpu::game_setting() {
+void Game::game_setting() {
     
     switch(game_setting_state_e_) {
         case GameSettingState::OFF_E: {
@@ -639,7 +619,7 @@ void T3Cpu::game_setting() {
 }
 
 /**
-    Handles new game conditions. Everytime there is a new game, it will come here.
+    Handles new game conditions. Everytime there is a new game, it will come here and do the new game sequence.
     Transition from cpu state NEW_GAME_E to PLAY_E
 
     Satisfy Requirement(s): <br/>
@@ -650,14 +630,14 @@ void T3Cpu::game_setting() {
     @return none
 
 */
-void T3Cpu::new_game() {
+void Game::new_game() {
 
     counter_s.cpu_state_transition_ctr_++;
     if(counter_s.cpu_state_transition_ctr_ < (NEW_GAME_TIME_MS/2)) { // first 1sec. turn the led board to RED
-        board_game.fill_board_game(led_board_, BOARD_RED_ON);
+        board_game.fill_board_game(BOARD_RED_ON);
     }
     else if(counter_s.cpu_state_transition_ctr_ < NEW_GAME_TIME_MS) { // the remaining 1sec. turn the led board to BLUE
-        board_game.fill_board_game(led_board_, BOARD_BLUE_ON);
+        board_game.fill_board_game(BOARD_BLUE_ON);
     }
     else {
         // Set buzzer state to Off.
@@ -666,12 +646,14 @@ void T3Cpu::new_game() {
         counter_s.cpu_state_transition_ctr_ = 0;
 
         // Clear board game
-        counter_s.slot_ctr_ = ROW_COL_SIZE;
-        board_game.fill_board_game(led_board_, BOARD_OFF);
+        board_game.fill_board_game(BOARD_OFF);
+
         // Assign the row0/col0 as possible next move. Here, led board row0/col0 will start to blink.
-        board_game.next_move(led_board_, counter_s.slot_ctr_);
-        // Choose who will do the first move (Player1 or Player2)
+        board_game.next_move();
+
+        // Check who will do the first move (Player1 or Player2)
         first_move();
+
         // Start the game
         cpu_state_e_ = CpuState::PLAY_E;
     }
@@ -696,7 +678,7 @@ void T3Cpu::new_game() {
     @return none
 
 */
-void T3Cpu::play() {
+void Game::play() {
 
     if(GameStatus::PLAYER1_E == turn_e_) {
         // Player1's turn
@@ -709,7 +691,7 @@ void T3Cpu::play() {
             // Reset psd npsd state to be ready for next button pressed/released action.
             p1.reset_psd_npsd_state();
             // Select move
-            board_game.select_move(led_board_, counter_s.slot_ctr_);
+            board_game.select_move();
         }
         
         // Check if enter button is pressed or move time counter has expired.
@@ -721,9 +703,9 @@ void T3Cpu::play() {
             status_flag_s.move_time_b_ = false;
 
             // Registered the selected move
-            board_game.update_board_game(led_board_, counter_s.slot_ctr_, BOARD_RED_ON);
+            board_game.update_board_game(BOARD_RED_ON);
             
-            if(true == (board_game.check_winner(led_board_, P1_WIN_TAG))) { // Check for winner
+            if(true == (board_game.check_winner(P1_WIN_TAG))) { // Check for winner
                 winner_e_ = GameStatus::PLAYER1_E;
                 // Increment player1 win counter
                 counter_s.p1_win_ctr_ +=1;
@@ -734,7 +716,7 @@ void T3Cpu::play() {
 
                 check_matches();
             }
-            else if(true == (board_game.check_draw(led_board_))) { // Check for draw
+            else if(true == (board_game.check_draw())) { // Check for draw
                 // Set player1 and 2 led indicators to OFF
                 p1.set_led_indicator_state(LED_OFF);
                 p2.set_led_indicator_state(LED_OFF);
@@ -743,7 +725,7 @@ void T3Cpu::play() {
             }
             else {
                 // Assign possible next move. Here, the next vacant led board slot will start to blink.
-                board_game.next_move(led_board_, counter_s.slot_ctr_);
+                board_game.next_move();
                 // Change turn
                 turn_e_ = GameStatus::PLAYER2_E;
             }
@@ -760,7 +742,7 @@ void T3Cpu::play() {
             // reset psd npsd state to be ready for next button pressed/released action.
             p2.reset_psd_npsd_state();
             // Select move
-            board_game.select_move(led_board_, counter_s.slot_ctr_);
+            board_game.select_move();
         }
         
         // Check if enter button is pressed then released or move time counter has expired.
@@ -772,9 +754,9 @@ void T3Cpu::play() {
             status_flag_s.move_time_b_ = false;
 
             // Registered the selected move
-            board_game.update_board_game(led_board_, counter_s.slot_ctr_, BOARD_BLUE_ON);
+            board_game.update_board_game(BOARD_BLUE_ON);
             
-            if(true == (board_game.check_winner(led_board_, P2_WIN_TAG))) { // Check for winner
+            if(true == (board_game.check_winner(P2_WIN_TAG))) { // Check for winner
                 winner_e_ = GameStatus::PLAYER2_E;
                 // Increment player1 win counter
                 counter_s.p2_win_ctr_ +=1;
@@ -785,7 +767,7 @@ void T3Cpu::play() {
 
                 check_matches();
             }
-            else if(true == (board_game.check_draw(led_board_))) { // Check for draw
+            else if(true == (board_game.check_draw())) { // Check for draw
                 // Set player1 and 2 led indicators to OFF
                 p1.set_led_indicator_state(LED_OFF);
                 p2.set_led_indicator_state(LED_OFF);
@@ -794,7 +776,7 @@ void T3Cpu::play() {
             }
             else {
                 // Assign possible next move. Here, the next vacant led board slot will start to blink. 
-                board_game.next_move(led_board_, counter_s.slot_ctr_);
+                board_game.next_move();
                 // Change turn
                 turn_e_ = GameStatus::PLAYER1_E;
             }
@@ -816,7 +798,7 @@ void T3Cpu::play() {
     @param  none
     @return none
 */
-void T3Cpu::draw() {
+void Game::draw() {
     
     counter_s.cpu_state_transition_ctr_++;
     if(counter_s.cpu_state_transition_ctr_ >= DRAW_TO_NEW_GAME_TIME_MS) {
@@ -841,7 +823,7 @@ void T3Cpu::draw() {
     @param  none
     @return none
 */
-void T3Cpu::check_game_interruption() {
+void Game::check_game_interruption() {
 
     if((SwitchState::PSD_E == p1.get_switch_state()) && (SwitchState::PSD_E == p2.get_switch_state())) {
         // Set game interruption flag
@@ -870,8 +852,7 @@ void T3Cpu::check_game_interruption() {
             p1.set_led_indicator_state(LED_OFF);
             p2.set_led_indicator_state(LED_OFF);
             // Clear board game
-            counter_s.slot_ctr_ = ROW_COL_SIZE;
-            board_game.fill_board_game(led_board_, BOARD_OFF);
+            board_game.fill_board_game(BOARD_OFF);
         }
         else {
             counter_s.restart_ctr_++;
@@ -929,7 +910,7 @@ void T3Cpu::check_game_interruption() {
     @return none
 
 */
-void T3Cpu::resume() {
+void Game::resume() {
 
     if((SwitchState::PSD_E == p1.get_switch_state()) && (SwitchState::PSD_E == p2.get_switch_state())) {
         // Switches are pressed. Wait for game interrupt counter to expired.
@@ -968,7 +949,7 @@ void T3Cpu::resume() {
     @param  none
     @return none
 */
-void T3Cpu::game_over() {
+void Game::game_over() {
 
     if(SwitchState::PSD_NPSD_E == p1_2.get_switch_state()) {
         // Reset psd npsd state to be ready for next button pressed/released action.
@@ -980,8 +961,7 @@ void T3Cpu::game_over() {
 
         if(game_mode_s.mode_info_ != MODE1) {
             // Clear board game
-            counter_s.slot_ctr_ = 0;
-            board_game.fill_board_game(led_board_, BOARD_OFF);
+            board_game.fill_board_game(BOARD_OFF);
             // Go back to setting state. Here, Players can able to change the game setting.
             cpu_state_e_ = CpuState::SETTING_E;            
         }
@@ -998,7 +978,7 @@ void T3Cpu::game_over() {
     @param  none
     @return none
 */
-void T3Cpu::task() {
+void Game::game_task() {
  
     switch(cpu_state_e_) {
         case CpuState::STARTUP_E: {
@@ -1067,7 +1047,7 @@ void T3CpuNode::publish_message() {
     if(0 == (scheduler % TASK_100MS)) {
         // Publish Led board game message
         tictactoe_msgs::T3_Led_Board_Game_Msg led_board_msgs;
-        t3_cpu.get_led_board(board);
+        board_game.get_led_board(board);
         led_board_msgs.Row0_Col0_Bi_Color_Led = board[0];
         led_board_msgs.Row0_Col1_Bi_Color_Led = board[1];
         led_board_msgs.Row0_Col2_Bi_Color_Led = board[2];
@@ -1139,7 +1119,7 @@ void T3CpuNode::push_button_switch_subscribeCallBack(const tictactoe_msgs::T3_Pu
     p1_2.set_switch_state(sws.Enter_Button_Status);
 
     // Internal task execution within t3_cpu
-    t3_cpu.task();
+    game.game_task();
     // Publish the necessary messages to t3_bcu
     publish_message();        
 }

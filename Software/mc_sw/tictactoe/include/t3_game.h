@@ -58,16 +58,20 @@ class Player: public MutualAction {
 class BoardGame {
     public:
         // Constructor
-        BoardGame(){}
+        BoardGame();
 
-        void select_move(uint8_t board[], int &slot);
-        void next_move(uint8_t board[], int &slot);
-        void update_board_game(uint8_t board[], int slot, uint8_t player_tag);
-        void fill_board_game(uint8_t board[], uint8_t tag);
-        bool check_winner(uint8_t board[], int win_tag);
-        bool check_draw(uint8_t board[]);
+        void select_move();
+        void next_move();
+        void update_board_game(uint8_t player_tag);
+        bool check_winner(int win_tag);
+        bool check_draw();
+        void fill_board_game(uint8_t tag);
 
-    private: 
+        void get_led_board(uint8_t board[]);
+
+    private:
+        uint8_t slot_ctr_;                // slot counter
+        uint8_t led_board_[ROW_COL_SIZE]; // board game
 };
 
 #endif // T3_GAME_H_
