@@ -92,25 +92,7 @@ ARM board:
 - echo "export ROS_HOSTNAME=<ARM board ip-address>" >> ~/.bashrc
 
 
-## 2.3 Project Installation
-ARM board computer:
-To install the needed tools and packages, create and configure project workspace, the installation package has to be started.
-Please follow below procedure.
-
-- Open the terminal
-- cd
-- git clone https://github.com/rugi252126/ROS_TicTacToe.git
-- cd ~/ROS_TicTacToe/Software/Tools/Installer
-- ./setup
-- If installation is successful, at the end of the installation process you will see the message "Installation is done."
-- Go to your home directory and you can check the newly created project workspace named "ros_tictactoe_ws"
-- Try to build the project workspace
-- cd ~/ros_tictactoe_ws/src
-- catkin_make
-- The project workspace should be able to build without any problem
-
-
-## 2.4 uDev Rules
+## 2.3 uDev Rules
 Since the arduino microcontroller is connected via USB of the ARM board computer, we have to defined and enabled the USB port used by arduino microcontroller.
 It can be done in different ways. Below I'll show you two methods.
 1. First method, it needs to be done manually everytime the ARM board computer is power-up.
@@ -126,16 +108,35 @@ You just have to do it once. To do it, please do the following
 - Run the ROS package to run the script, type: rosrun udev_rules make_udev.py
 - Plug-in your microcontroller USB to ARM board computer USB port
 - Once you see the message "New udev rules is successfully created.", press "CTRL+C" and follow the instruction given in the terminal.
-- Copy the new rules, type: sudo cp 25-tictactoe.rules /etc/udev/rules.d
+- Copy the new rules, type: sudo cp 25-tictactoe.rules /etc/udev/rules.d/25-tictactoe.rules
 - Reboot your computer
 
+To check the detailed information of the device, you can do the following.
+- udevadm info -a -n /dev/ttyUSBx OR udevadm info -a -n /dev/ttyACMx
+- x can be 0, 1, etc..
 
 For Ubuntu 16.04, method number 2 can be done without any problem. However, for Ubuntu 18.04 the script won't work because the gudev in python is not supported. 
-For Ubuntu 18.04, if you are planning to create new udev rules manually, you can use below links as reference.
+For Ubuntu 18.04, if you are planning to create new udev rules manually, you can use below link as reference.
 - Detailed explanation about the udev rules and how to create one
-http://www.reactivated.net/writing_udev_rules.html
-- To check the Vendor ID or Product ID
-http://www.the-sz.com/products/usbid/index.php?v=&p=&n=
+- http://www.reactivated.net/writing_udev_rules.html
+
+
+## 2.4 Project Installation
+ARM board computer:
+To install the needed tools and packages, create and configure project workspace, the installation package has to be started.
+Please follow below procedure.
+
+- Open the terminal
+- cd
+- git clone https://github.com/rugi252126/ROS_TicTacToe.git
+- cd ~/ROS_TicTacToe/Software/Tools/Installer
+- ./setup
+- If installation is successful, at the end of the installation process you will see the message "Installation is done."
+- Go to your home directory and you can check the newly created project workspace named "ros_tictactoe_ws"
+- Try to build the project workspace
+- cd ~/ros_tictactoe_ws/src
+- catkin_make
+- The project workspace should be able to build without any problem
 
 
 ## 3. Hardware Setup
