@@ -4,13 +4,16 @@ set -e
 
 source /opt/ros/$(dir /opt/ros)/setup.bash
 
-sudo cp teensy_uDev_rules/49-teensy.rules /etc/udev/rules.d/
+#sudo cp teensy_uDev_rules/49-teensy.rules /etc/udev/rules.d/
 
 ROSDISTRO="$(rosversion -d)"
 ARCH="$(uname -m)"
-echo $ARCH
+RELEASE=$(lsb_release -c -s)
+echo "Architecture:" $ARCH
+echo "Release:     " $RELEASE
+echo "ROS Distro:  " $ROSDISTRO
 echo "
-ROS Tic-Tac-Toe                                                                     
+ROS TicTacToe                                                                     
 "
 
 echo "========[Starting the Instalation]========"
@@ -22,11 +25,16 @@ avahi-daemon \
 openssh-server \
 python-setuptools \
 python-dev \
-build-essential \
-git
-echo "*********************************************"
-echo "python-gudev is not supported in Ubuntu 18.04"
-echo "*********************************************"
+build-essential
+
+if [ $ROSDISTRO == "kinetic" ]
+    then
+        sudo apt-get install -y python-gudev
+else
+    echo "*********************************************"
+    echo "python-gudev is not supported in Ubuntu 18.04"
+    echo "*********************************************"
+fi
 
 echo
 echo "========[Installing Platformio]========"
@@ -41,7 +49,7 @@ echo
 source /opt/ros/$ROSDISTRO/setup.bash
 
 cd $HOME
-sudo rm -rf rps_tictactoe_ws
+sudo rm -rf ros_tictactoe_ws
 mkdir -p ros_tictactoe_ws/src
 cd $HOME/ros_tictactoe_ws/src
 catkin_init_workspace
@@ -76,8 +84,8 @@ cp -r $HOME/ROS_TicTacToe/Software/mc_sw/tictactoe .
 
 cd $HOME/ros_tictactoe_ws/src/tictactoe
 cd $HOME/ros_tictactoe_ws/src/tictactoe/arduinomega
-export PLATFORMIO_CI_SRC=$PWD/src/main.cpp
-platformio ci --project-conf=./platformio.ini --lib="./lib/ros_lib" --lib="./lib/cfg"
+export PLATFORMIO_CI_SRC=$PWD/src/t3_bcu.cpp
+platformio ci --project-conf=./platformio.ini --lib="./lib/ros_lib" --lib="./lib/cfg" --lib="./lib/board" --lib="./lib/buzzer" --lib="./lib/display" --lib="./lib/led_indicator" --lib="./lib/switch_in"
 
 echo "source $HOME/ros_tictactoe_ws/devel/setup.bash" >> $HOME/.bashrc
 source $HOME/.bashrc

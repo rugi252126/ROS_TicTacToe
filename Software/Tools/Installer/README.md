@@ -7,7 +7,3 @@ The following will be included in the installation.
 - ROS serial communication
 - Setting-up the complete project workspace
 
-
-The teensy uDev rules can be found in PJRC website https://www.pjrc.com/teensy/49-teensy.rules
-
-During installation, the teensy uDev rules will be copied to your Linux system.

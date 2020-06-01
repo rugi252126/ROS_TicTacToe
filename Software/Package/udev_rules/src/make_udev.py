@@ -11,10 +11,6 @@ def on_uevent_calback(client, action, device, user_data):
     device_id = device.get_property("ID_SERIAL_SHORT")
     model_id = device.get_property("ID_MODEL_ID")
     vendor_id = device.get_property("ID_VENDOR_ID")
-    if vendor_id == "10c4" or vendor_id == "067b":
-        kernel = "ttyUSB?"
-    else:    
-        kernel = "ttyACM?"
 
     if action == "add":
         global udev_rules
@@ -25,8 +21,8 @@ def on_uevent_calback(client, action, device, user_data):
         print "model id    = " + model_id
         print "vendor id   = " + vendor_id
 
-        sym_link = "t3_bcu" # port name for tictactoe base control unit
-        udev_rules_string = "KERNEL==\"%s\", SUBSYSTEM==\"tty\", ATTRS{idVendor}==\"%s\", ATTRS{idProduct}==\"%s\", ATTRS{serial}==\"%s\", MODE=\"0666\" SYMLINK+=\"%s\"\r\n" %(kernel, vendor_id, model_id, device_id, sym_link)
+        sym_link = "bcu" # port name for tictactoe base control unit
+        udev_rules_string = "SUBSYSTEM==\"tty\", ATTRS{idVendor}==\"%s\", ATTRS{idProduct}==\"%s\", ATTRS{serial}==\"%s\", MODE=\"0666\" SYMLINK+=\"%s\"\r\n" %(vendor_id, model_id, device_id, sym_link)
         udev_rules += udev_rules_string
 
         print("\nNew udev rules is successfully created.")

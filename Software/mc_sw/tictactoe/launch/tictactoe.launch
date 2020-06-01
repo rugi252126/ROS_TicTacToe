@@ -1,7 +1,7 @@
 <launch>
   <node pkg="rosserial_python" name="rosserial_bcu" type="serial_node.py" output="screen">
-    <!-- /dev/ttyUSB0 to /dev/t3_bcu -->
-    <param name="port" value="/dev/t3_bcu" />
+    <!-- /dev/ttyUSB0 to /dev/bcu -->
+    <param name="port" value="/dev/bcu" />
     <param name="baud" value="57600" />
   </node>
 
