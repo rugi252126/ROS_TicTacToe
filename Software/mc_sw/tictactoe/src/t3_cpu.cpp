@@ -632,6 +632,11 @@ void Game::game_setting() {
 */
 void Game::new_game() {
 
+    // Send invalid value to have blank display
+    p1.set_display(DISPLAY_SNA);
+    p2.set_display(DISPLAY_SNA);
+    p1_2.set_display(DISPLAY_SNA);
+
     counter_s.cpu_state_transition_ctr_++;
     if(counter_s.cpu_state_transition_ctr_ < (NEW_GAME_TIME_MS/2)) { // first 1sec. turn the led board to RED
         board_game.fill_board_game(BOARD_RED_ON);
@@ -680,8 +685,14 @@ void Game::new_game() {
 */
 void Game::play() {
 
+    uint8_t move_tag;
+    int win_tag;
+
     if(GameStatus::PLAYER1_E == turn_e_) {
         // Player1's turn
+
+        move_tag = BOARD_RED_ON;
+        win_tag = P1_WIN_TAG;
             
         // Set player1 led indicator to Blinking and Player2 to OFF
         p1.set_led_indicator_state(LED_BLINKING);
@@ -693,46 +704,12 @@ void Game::play() {
             // Select move
             board_game.select_move();
         }
-        
-        // Check if enter button is pressed or move time counter has expired.
-        if((SwitchState::PSD_NPSD_E == p1_2.get_switch_state()) || (status_flag_s.move_time_b_ != false)) {
-            // Reset psd npsd state to be ready for next button pressed/released action.
-            p1_2.reset_psd_npsd_state();
-
-            // Reset the move time status flag
-            status_flag_s.move_time_b_ = false;
-
-            // Registered the selected move
-            board_game.update_board_game(BOARD_RED_ON);
-            
-            if(true == (board_game.check_winner(P1_WIN_TAG))) { // Check for winner
-                winner_e_ = GameStatus::PLAYER1_E;
-                // Increment player1 win counter
-                counter_s.p1_win_ctr_ +=1;
-
-                // Set player1 led indicator to ON and Player2 to OFF
-                p1.set_led_indicator_state(LED_ON);
-                p2.set_led_indicator_state(LED_OFF);
-
-                check_matches();
-            }
-            else if(true == (board_game.check_draw())) { // Check for draw
-                // Set player1 and 2 led indicators to OFF
-                p1.set_led_indicator_state(LED_OFF);
-                p2.set_led_indicator_state(LED_OFF);
-                // Game is draw.
-                cpu_state_e_ = CpuState::DRAW_E;
-            }
-            else {
-                // Assign possible next move. Here, the next vacant led board slot will start to blink.
-                board_game.next_move();
-                // Change turn
-                turn_e_ = GameStatus::PLAYER2_E;
-            }
-        }
     }
     else {
         // Player2's turn
+
+        move_tag = BOARD_BLUE_ON;
+        win_tag = P2_WIN_TAG;
 
         // Set player2 led indicator to Blinking and Player1 to OFF
         p2.set_led_indicator_state(LED_BLINKING);
@@ -744,41 +721,64 @@ void Game::play() {
             // Select move
             board_game.select_move();
         }
-        
-        // Check if enter button is pressed then released or move time counter has expired.
-        if((SwitchState::PSD_NPSD_E == p1_2.get_switch_state()) || (status_flag_s.move_time_b_ != false)) {
-            // reset psd npsd state to be ready for next button pressed/released action.
-            p1_2.reset_psd_npsd_state();
+    }
 
-            // Reset the move time status flag
-            status_flag_s.move_time_b_ = false;
+    // Check if enter button is pressed or move time counter has expired.
+    if((SwitchState::PSD_NPSD_E == p1_2.get_switch_state()) || (status_flag_s.move_time_b_ != false)) {
+        // Reset psd npsd state to be ready for next button pressed/released action.
+        p1_2.reset_psd_npsd_state();
 
-            // Registered the selected move
-            board_game.update_board_game(BOARD_BLUE_ON);
+        // Reset the move time status flag
+        status_flag_s.move_time_b_ = false;
+
+        // Reset the move time counters
+        counter_s.move_time_1sec_ctr_ = 0;
+        counter_s.move_time_ctr_ = 0;
+
+        // Registered the selected move
+        board_game.update_board_game(move_tag);
             
-            if(true == (board_game.check_winner(P2_WIN_TAG))) { // Check for winner
-                winner_e_ = GameStatus::PLAYER2_E;
+        if(true == (board_game.check_winner(win_tag))) { // Check for winner
+
+            if(GameStatus::PLAYER1_E == turn_e_) {
+                winner_e_ = GameStatus::PLAYER1_E;
                 // Increment player1 win counter
+                counter_s.p1_win_ctr_ +=1;
+
+                // Set player1 led indicator to ON and Player2 to OFF
+                p1.set_led_indicator_state(LED_ON);
+                p2.set_led_indicator_state(LED_OFF);                
+            }
+            else {
+                winner_e_ = GameStatus::PLAYER2_E;
+                // Increment player2 win counter
                 counter_s.p2_win_ctr_ +=1;
 
                 // Set player2 led indicator to ON and Player1 to OFF
                 p1.set_led_indicator_state(LED_OFF);
                 p2.set_led_indicator_state(LED_ON);
-
-                check_matches();
             }
-            else if(true == (board_game.check_draw())) { // Check for draw
-                // Set player1 and 2 led indicators to OFF
-                p1.set_led_indicator_state(LED_OFF);
-                p2.set_led_indicator_state(LED_OFF);
-                // Game is draw.
-                cpu_state_e_ = CpuState::DRAW_E;
+
+            check_matches();
+        }
+        else if(true == (board_game.check_draw())) { // Check for draw
+            // Set player1 and 2 led indicators to OFF
+            p1.set_led_indicator_state(LED_OFF);
+            p2.set_led_indicator_state(LED_OFF);
+            // Game is draw.
+            cpu_state_e_ = CpuState::DRAW_E;
+        }
+        else {
+            // Assign possible next move. Here, the next vacant led board slot will start to blink.
+            board_game.next_move();
+
+            if(GameStatus::PLAYER1_E == turn_e_) {
+                // Change turn
+                turn_e_ = GameStatus::PLAYER2_E;                
             }
             else {
-                // Assign possible next move. Here, the next vacant led board slot will start to blink. 
-                board_game.next_move();
                 // Change turn
-                turn_e_ = GameStatus::PLAYER1_E;
+                turn_e_ = GameStatus::PLAYER1_E;  
             }
         }
     }
