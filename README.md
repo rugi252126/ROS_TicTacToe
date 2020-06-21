@@ -173,17 +173,22 @@ It is used to build and load the software into arduino microcontroller.
 ## 5. Testing
 If everything is fine, it is time to load the software to the Base Control Unit and start the testing.
 
+## 5.1 Loading Firmware
 To load the software into microcontroller, please do the following.
 - Open the terminal
 - cd ~/ros_tictactoe_ws/src/tictactoe/arduinomega
 - platformio run --target upload
 - You should able to see message that flashing is successfully done.
 
+## 5.2 Start Communication
 After firmware was successfully loaded, then start the communication by doing the following.
 - Open the terminal
 - cd ~/ros_tictactoe_ws/
 - roslaunch tictactoe tictactoe.launch
 
+## 5.3 Sample Video
+Video link
+- https://drive.google.com/file/d/1upj7tLbBJ0uBpl8KDFbGav7eW70T2_4d/view?usp=sharing
 
 
 
