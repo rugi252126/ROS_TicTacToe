@@ -27,9 +27,11 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_library(t3_game src/t3_game.cpp)
+add_library(Action src/Action.cpp)
+add_library(Player src/Player.cpp)
+add_library(Board src/Board.cpp)
 add_library(t3_cpu src/t3_cpu.cpp)
 add_executable(t3_cpu_node src/t3_cpu_node.cpp) ## When adding new library, first, comment out this line then catkin_make. After that, enable again and catkin_make
-target_link_libraries(t3_cpu_node t3_cpu t3_game ${catkin_LIBRARIES})
+target_link_libraries(t3_cpu_node t3_cpu Action Player Board ${catkin_LIBRARIES})
 
 

@@ -7,14 +7,20 @@
     @version 1.2 31/5/2020
 */
 
-#include "t3_cpu.h"
-#include "t3_game.h"
+/* library include */
 #include <stdlib.h> // for srand, rand
 #include <time.h>   // for time, it would be good to have when generating random values.
+/* ros message include */
 #include <tictactoe_msgs/T3_Indicator_Msg.h>
 #include <tictactoe_msgs/T3_7Segment_Display_Msg.h>
 #include <tictactoe_msgs/T3_Led_Board_Game_Msg.h>
 #include <tictactoe_msgs/T3_Game_Mode_Msg.h>
+/* project include */
+#include "com.hpp"
+#include "t3_cpu.hpp"
+#include "Action.hpp"
+#include "Player.hpp"
+#include "Board.hpp"
 
 //! Constant declaration
 // Application timers in milli-second form
@@ -29,7 +35,12 @@ const int NEW_GAME_TIME_MS         = (2000/TASK_TIME_MS);
 
 class Game {
     public:
+        // Constructor
         Game();
+
+        // Destructor
+        ~Game();
+
         void game_task();
 
     private:
@@ -120,11 +131,11 @@ class Game {
 };
 
 // Object instances
-Game game            = Game();
-Player p1            = Player();
-Player p2            = Player();
-MutualAction p1_2    = MutualAction();
-BoardGame board_game = BoardGame();
+Game game         = Game();
+Player p1         = Player();
+Player p2         = Player();
+MutualAction p1_2 = MutualAction();
+Board board_game  = Board();
 
 /**
     Class T3CpuNode constructor
@@ -144,7 +155,10 @@ T3CpuNode::T3CpuNode() {
 }
 
 /**
-    Class Game constructor
+    Class constructor
+
+    @param  none
+    @return none
 */
 Game::Game() {
     cpu_state_e_                           = CpuState::STARTUP_E;
@@ -167,6 +181,14 @@ Game::Game() {
     counter_s.move_time_1sec_ctr_          = 0;
 }
 
+/**
+    Class destructor
+
+    @param  none
+    @return none
+*/
+Game::~Game() { 
+}
 
 /**
     For every new game, function checks who will do the first move(Player1/Player2).
