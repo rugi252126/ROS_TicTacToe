@@ -1,5 +1,5 @@
-#ifndef MOVE_H_
-#define MOVE_H_
+#ifndef ACTION_H_
+#define ACTION_H_
 
 enum class SwitchState {
     NPSD_E,
@@ -37,4 +37,4 @@ class MutualAction {
         SwitchState switch_state_e_;
 };
 
-#endif // MOVE_H_
+#endif // ACTION_H_
