@@ -186,9 +186,17 @@ After firmware was successfully loaded, then start the communication by doing th
 - cd ~/ros_tictactoe_ws/
 - roslaunch tictactoe tictactoe.launch
 
-## 5.3 Sample Video
-Video link
+## 6. Photo and Video
+
+## 6.1. Actual Photo
+![Blue LED](https://github.com/rugi252126/ROS_TicTacToe/blob/master/Hardware/Prototype/SAM_9105.JPG?raw=true)
+
+![Red LED](https://github.com/rugi252126/ROS_TicTacToe/blob/master/Hardware/Prototype/SAM_9107.JPG?raw=true)
+
+## 6.2. Video link
 - https://drive.google.com/file/d/1upj7tLbBJ0uBpl8KDFbGav7eW70T2_4d/view?usp=sharing
+
+
 
 
 
