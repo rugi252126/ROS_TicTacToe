@@ -1,5 +1,5 @@
 /**
-    t3_game.cpp
+    Board.cpp
     Purpose: Handles the underlying behavior of the game. 
     Processing of the information that received from T3_BCU and the information that need to be sent to T3_BCU.
 
